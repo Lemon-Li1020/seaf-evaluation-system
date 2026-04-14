@@ -859,7 +859,58 @@ GET /seaf/api/go_internal/get_tag_list?scenario_id=29
 
 #### 10.2.2 获取模版列表
 
-> （文档待补充）
+构建侧拉取模版列表。
+
+**请求**
+```
+GET /seaf/api/go_internal/agent_tpl/list
+```
+
+**Header**：`Auth-Token: SR6B310fsir2pGnAQ8iG3oT4J2iR3xJd`（固定写死）
+
+**Query 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| tag_id | 否 | string | 标签 ID，不传获取全部 |
+| page_size | 否 | int | 每页数量 |
+| page_num | 否 | int | 页码 |
+| template_status | 否 | int | 0=未启用，1=已启用 |
+
+**返回**
+```json
+{
+  "err_code": "0",
+  "err_msg": "ok",
+  "datas": {
+    "list": [
+      {
+        "sort_num": "1",
+        "template_icon": "xxx.png",
+        "template_name": "智能助手1",
+        "creator_name": "智能助手",
+        "template_tag_name": "销售",
+        "template_status": "0",
+        "created_time": "1757402009",
+        "agent_detail": {
+          "AgentID": "agent_1000",
+          "AgentType": "0",
+          "Params": {
+            "BasicInfo": {
+              "Prompt": "...",
+              "LlmProvider": "DeepSeek",
+              "LlmModel": "gpt-4",
+              "IsSuggestion": "1"
+            },
+            "Knowledge": [...],
+            "Mcp": [...]
+          }
+        }
+      }
+    ]
+  }
+}
+```
 
 #### 10.2.3 获取智能体分类列表
 
