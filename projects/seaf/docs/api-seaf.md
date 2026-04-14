@@ -1,6 +1,6 @@
 # Seaf 侧开放接口文档
 
-> 来源：360AI企业智能体知识库（张立增/葛长航整理）
+> 来源：360AI企业智能体知识库（张立增/葛长航/陈启明整理）
 > 更新：2026-04-14
 
 ---
@@ -28,12 +28,12 @@ POST /seaf/api/open/gui/create
 
 | 参数 | 必选 | 类型 | 说明 |
 |------|------|------|------|
-| app_id | 否 | string | QPaaS 应用 ID，为空代表新增，不为空且存在代表更新 |
+| app_id | 否 | string | QPaaS 应用 ID，为空=新增，不为空且存在=更新 |
 | app_name | 是 | string | GUI 应用名称 |
-| app_code | 是 | string | GUI 应用编码（Seaf 和 QPaaS 两边保持一致） |
+| app_code | 是 | string | GUI 应用编码（Seaf 和 QPaaS 两边一致） |
 | app_desc | 是 | string | GUI 应用描述 |
 | app_icon | 是 | string | GUI 应用图标 |
-| operate_type | 是 | string | 操作类型：`SAVE`（保存）/ `DEPLOY_APPLY`（发布申请）/ `COPY`（复制）/ `TEMPLATE`（从模板创建） |
+| operate_type | 是 | string | `SAVE`（保存）/ `DEPLOY_APPLY`（发布申请）/ `COPY`（复制）/ `TEMPLATE`（从模板创建） |
 | preview_url | 是 | string | 只读跳转地址 |
 | edit_url | 是 | string | 编辑跳转地址 |
 | user_client_url | 否 | string | 用户端地址 |
@@ -41,9 +41,9 @@ POST /seaf/api/open/gui/create
 | version | 是 | string | 版本号，默认 `1.0` |
 | agent_team_id | 是 | string | 从 agent 拉取的团队 ID |
 | agent_team_name | 否 | string | 发布申请时有值 |
-| copy_app_code | 否 | string | 复制操作的源编码 |
+| copy_app_code | 否 | string | 复制操作时传入源编码 |
 | version_mes | 否 | string | 发布申请时的版本说明 |
-| remark | 否 | string | 发布申请时的备注（选了公司员工后的说明） |
+| remark | 否 | string | 发布申请时的备注 |
 | label_id | 否 | int | 发布申请时的智能体分类 ID |
 | public_type | 否 | int | 发布申请时：0=公司员工，1=本空间用户 |
 | template_id | 否 | string | 从模板创建时透传的模板 ID |
@@ -76,7 +76,7 @@ POST /seaf/api/open/gui/create
 
 ### 2.1 查询全部用户信息
 
-构建组织架构用，分页返回。
+构建组织架构用，分页返回，每页最多 200 条。
 
 **请求**
 ```
@@ -88,7 +88,7 @@ GET /seaf/api/open/user/all
 | 参数 | 必选 | 类型 | 说明 |
 |------|------|------|------|
 | cid | 否 | string | 组织 ID，不传默认租户 |
-| page | 否 | string | 页码，默认第一页，每页最多 200 条 |
+| page | 否 | string | 页码，默认第一页 |
 
 **返回**
 ```json
@@ -146,8 +146,8 @@ POST /seaf/api/open/user/list
 
 | 参数 | 必选 | 类型 | 说明 |
 |------|------|------|------|
-| ids | 否 | array | 用户 ID 列表，与 accounts 二选一，最大 100 条 |
-| accounts | 否 | array | 用户 account 数组，与 ids 二选一，最大 100 条 |
+| ids | 否 | array | 用户 ID 列表，与 accounts 二选一，最多 100 条 |
+| accounts | 否 | array | 用户 account 数组，与 ids 二选一，最多 100 条 |
 
 **返回**：同全量查询，单个用户字段含 `avatarUrl`（头像 URL）。
 
@@ -164,7 +164,7 @@ GET /seaf/api/open/user/info
 
 | 参数 | 必选 | 类型 | 说明 |
 |------|------|------|------|
-| id | 是（与 account 二选一） | string | 用户 ID |
+| id | 与 account 二选一 | string | 用户 ID |
 | account | 否 | string | 用户 account |
 
 **返回字段扩展**
@@ -232,11 +232,72 @@ POST /seaf/api/open/dept/list
 
 ---
 
+### 3.3 查询部门详情
+
+**请求**
+```
+GET /seaf/api/open/dept/info
+```
+
+**Query 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| id | 是 | string | 部门 ID |
+| cid | 否 | string | 组织 ID，不传默认租户 1 |
+
+**返回**
+```json
+{
+  "errcode": "0",
+  "errmsg": "成功",
+  "did": "部门id",
+  "name": "部门名称",
+  "desp": "部门描述",
+  "dept_source": "部门创建来源标识",
+  "tel": "部门电话",
+  "pid": "父部门id",
+  "order": "部门排序",
+  "dept_group": "是否创建部门群",
+  "tagList": {
+    "tagId": "标签id",
+    "orgin_tagId": "第三方标签",
+    "name": "标签名称"
+  }
+}
+```
+
+---
+
 ## 四、媒体文件接口
 
 ### 4.1 上传媒体文件
 
-> （文档待补充）
+支持图片（jpg、png），单文件最大 2MB。
+
+**请求**
+```
+POST /seaf/api/open/media/upload
+Content-Type: multipart/form-data
+```
+
+**Form 参数**
+
+| 参数 | 必选 | 说明 |
+|------|------|------|
+| type | 是 | 媒体类型：`image` |
+| media | 是 | 文件内容，含 filename、filelength、content-type |
+
+**返回**
+```json
+{
+  "errcode": "0",
+  "errmsg": "成功",
+  "type": "image",
+  "media_url": "媒体资源在平台的完整访问路径",
+  "created_at": "1487585599"
+}
+```
 
 ---
 
@@ -320,7 +381,8 @@ POST /seaf/api/open/dept/list
 | 查询用户详情 | ✅ 已获取 |
 | 查询全部部门信息 | ✅ 已获取 |
 | 批量查询部门信息 | ✅ 已获取 |
-| 上传媒体文件 | ⏳ 待补充 |
+| 查询部门详情 | ✅ 已获取 |
+| 上传媒体文件 | ✅ 已获取 |
 | 用户单点登录 | ⏳ 待补充 |
 | MCP工具接口 | ⏳ 待补充 |
 | 评价列表查询接口 | ⏳ 待补充 |
