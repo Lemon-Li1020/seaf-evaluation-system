@@ -33,7 +33,7 @@
 | `docs/deployment-license.md` | agents-license 部署流程 |
 | `docs/qpaas-scripts.md` | QPaaS GUI 侧部署脚本（6 个 feat） |
 
-**changelog 状态**：0731 版本待补充，其余已齐全。
+**changelog 状态**：✅ 已齐全（0731 无相关信息）。
 
 ---
 
