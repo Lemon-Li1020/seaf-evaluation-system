@@ -914,7 +914,30 @@ GET /seaf/api/go_internal/agent_tpl/list
 
 #### 10.2.3 获取智能体分类列表
 
-> （文档待补充）
+构建平台前端查询所有智能体分类列表。
+
+**请求**
+```
+GET /api/v2/agents/agent_category
+```
+
+**Header**
+
+| 参数 | 值 |
+|------|------|
+| Authorization | 授权 KEY |
+| Teamid | 团队 ID（如 `11111111111`） |
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": [
+    { "id": 1, "name": "分类1" },
+    { "id": 2, "name": "分类2" }
+  ]
+}
+```
 
 #### 10.2.4 获取审核开关
 
