@@ -460,7 +460,101 @@ POST /api/remark/list
 
 ### 7.2 点踩数据查询接口
 
-> （文档待补充）
+#### 7.2.1 点赞数据查询
+
+**请求**
+```
+POST /api/v2/agents/get_agent_like_remark
+```
+
+**Body 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| agent_id | 是 | int | 智能体 ID |
+| user_name | 否 | str | 用户名称模糊查询 |
+| tag_ids | 否 | list | 标签 ID 列表 |
+| remark_content | 否 | str | 反馈内容模糊查询 |
+| start_date | 否 | int | 开始时间（时间戳，默认30天前） |
+| end_date | 否 | int | 结束时间（时间戳） |
+| page | 否 | int | 页码，默认 1 |
+| page_size | 否 | int | 每页数量，默认 50 |
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": [
+    {
+      "agent_id": 2770,
+      "user_account": "gelunbiya",
+      "user_name": "aaa",
+      "session_id": "1222",
+      "message_id": "3333",
+      "remark": "hhh",
+      "images": "",
+      "create_time": 1754536733,
+      "update_time": 1754536733,
+      "log_id": "",
+      "tags_ids": "[7]",
+      "tags_names": "[\"响应速度快\"]"
+    }
+  ],
+  "pagination": { "total": 1, "page": 1, "page_size": 50 }
+}
+```
+
+#### 7.2.2 点踩数据查询
+
+**请求**
+```
+POST /api/v2/agents/get_agent_unlike_remark
+```
+
+**参数同 7.2.1**，返回结构一致。
+
+#### 7.2.3 点赞数据导出
+
+```
+POST /api/v2/agents/export_agent_like_remark
+```
+
+参数同 7.2.1（不含分页参数）。返回流式 Excel 文件。
+
+#### 7.2.4 点踩数据导出
+
+```
+POST /api/v2/agents/export_agent_unlike_remark
+```
+
+参数同 7.2.1（不含分页参数）。返回流式 Excel 文件。
+
+#### 7.2.5 点赞标签查询
+
+```
+GET /api/v2/agents/get_agent_like_remark_tags?agent_id=2222
+```
+
+**Query 参数**：`agent_id`（必填）
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": [
+    { "tag_id": 58, "tag_name": "互动体验友好" },
+    { "tag_id": 57, "tag_name": "响应速度快" }
+  ]
+}
+```
+
+#### 7.2.6 点踩标签查询
+
+```
+GET /api/v2/agents/get_agent_dislike_remark_tags?agent_id=2222
+```
+
+**参数同 7.2.5**，返回结构一致（标签内容为差评类，如"响应速度慢"、"答非所问"）。
 
 ---
 
@@ -521,7 +615,7 @@ POST /api/remark/list
 | 用户单点登录 | ✅ 已获取 |
 | MCP工具接口 | ✅ 已获取 |
 | 评价列表查询接口 | ✅ 已获取 |
-| 点踩数据查询接口 | ⏳ 待补充 |
+| 点踩数据查询接口 | ✅ 已获取 |
 | 运营数据接口 | ⏳ 待补充 |
 | GUI侧获取智能体分类列表 | ⏳ 待补充 |
 | 按空间获取知识库数据集 | ⏳ 待补充 |
