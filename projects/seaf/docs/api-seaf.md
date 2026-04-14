@@ -92,7 +92,31 @@ POST /seaf/api/open/gui/cancel_check
 
 ### 1.3 GUI 应用撤销发布
 
-> （文档待补充）
+QPaaS 撤销发布后通知 Seaf。
+
+**请求**
+```
+POST /seaf/api/open/gui/unpublish
+```
+
+**Body 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| app_code | 是 | string | GUI 应用编码（Seaf 和 QPaaS 两边一致） |
+| user_id | 是 | string | 操作人用户 ID |
+| team_id | 是 | string | 团队 ID |
+| version | 是 | string | 版本号 |
+
+**返回**
+```json
+{
+  "errcode": 0,
+  "errmsg": "success",
+  "trans_id": "xxxxx",
+  "data": {}
+}
+```
 
 ---
 
@@ -657,7 +681,7 @@ GET /api/v2/agent/report/call_person_statistics
 |------|------|
 | GUI应用创建/申请发布回调 | ✅ 已获取 |
 | GUI应用取消发布审核回调 | ✅ 已获取 |
-| GUI应用撤销发布 | ⏳ 待补充 |
+| GUI应用撤销发布 | ✅ 已获取 |
 | 查询全部用户信息 | ✅ 已获取 |
 | 批量查询用户接口 | ✅ 已获取 |
 | 查询用户详情 | ✅ 已获取 |
