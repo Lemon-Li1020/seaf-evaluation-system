@@ -704,7 +704,37 @@ GET /seaf/api/open/gui/tags
 
 ### 9.3 按空间获取知识库数据集
 
-> （文档待补充）
+QPaaS 传递空间 ID，获取 Seaf 空间下的数据集列表。
+
+**请求**
+```
+GET /seaf/api/open/gui/get_knowledge_dataset_list
+```
+
+**Query 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| user_id | 是 | string | 操作人用户 ID |
+| team_id | 是 | string | 团队 ID |
+
+**返回**
+```json
+{
+  "errcode": 0,
+  "err_msg": "success",
+  "trans_id": "xxxxx",
+  "datas": [
+    {
+      "id": 191,
+      "userName": "admin",
+      "name": "数据集",
+      "create_time": "2025-11-21 15:21:46",
+      "update_time": "2025-11-21 15:21:47"
+    }
+  ]
+}
+```
 
 ### 9.4 按数据集获取知识库列表
 
@@ -748,7 +778,7 @@ GET /seaf/api/open/gui/tags
 | 点踩数据查询接口 | ✅ 已获取 |
 | 运营数据接口 | ✅ 已获取 |
 | GUI侧获取智能体分类列表 | ✅ 已获取 |
-| 按空间获取知识库数据集 | ⏳ 待补充 |
+| 按空间获取知识库数据集 | ✅ 已获取 |
 | 按数据集获取知识库列表 | ⏳ 待补充 |
 | 查询管理后台AI配置 | ⏳ 待补充 |
 | 管理端给构建侧交互接口 | ⏳ 待补充 |
