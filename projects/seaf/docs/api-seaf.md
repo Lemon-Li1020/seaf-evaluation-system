@@ -647,7 +647,31 @@ GET /api/v2/agent/report/call_person_statistics
 
 ### 9.1 GUI 侧获取智能体分类列表
 
-> （文档待补充）
+QPaaS 查询 Seaf 侧的智能体分类列表。
+
+**请求**
+```
+GET /seaf/api/open/gui/agent_category
+```
+
+**返回**
+```json
+{
+  "errcode": 0,
+  "err_msg": "success",
+  "trans_id": "xxxxx",
+  "datas": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "分类1",
+        "desc": "分类1的描述",
+        "sort": 0
+      }
+    ]
+  }
+}
+```
 
 ### 9.2 按空间获取知识库数据集
 
@@ -694,7 +718,7 @@ GET /api/v2/agent/report/call_person_statistics
 | 评价列表查询接口 | ✅ 已获取 |
 | 点踩数据查询接口 | ✅ 已获取 |
 | 运营数据接口 | ✅ 已获取 |
-| GUI侧获取智能体分类列表 | ⏳ 待补充 |
+| GUI侧获取智能体分类列表 | ✅ 已获取 |
 | 按空间获取知识库数据集 | ⏳ 待补充 |
 | 按数据集获取知识库列表 | ⏳ 待补充 |
 | 查询管理后台AI配置 | ⏳ 待补充 |
