@@ -340,7 +340,76 @@ POST /seaf/api/open/get_user_info
 
 ### 6.1 MCP 工具接口
 
-> （文档待补充）
+#### 6.1.1 空间下 MCP 列表
+
+**请求**
+```
+POST /api/mcp/list
+```
+
+**Body 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| mcp_category | 否 | int | -1=全部；0=工具MCP；1=工作流MCP |
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": [
+    {
+      "id": 144,
+      "user_id": 45313,
+      "user_name": "liuguanyu1",
+      "user_avatar": "",
+      "team_id": 1635,
+      "name": "工具mcp1",
+      "detail": "工具mcp",
+      "publish_status": 2,
+      "images": "/privatization/apiIcon1.png",
+      "create_time": "2025-07-30T15:43:41",
+      "update_time": "2025-07-30T15:43:58",
+      "is_auth": 2,
+      "auth_type": 1,
+      "mcp_config": "{ mcpServers: {...} }",
+      "mcp_type": 1,
+      "mcp_category": 0,
+      "flow_id": 0,
+      "template_check_status": 2,
+      "publish_time": "2025-07-30T15:43:54",
+      "is_top": 1
+    }
+  ],
+  "pagination": { "total": 7, "page": 1, "page_size": 1 }
+}
+```
+
+**新增返回字段**：`update_time`、`user_avatar`、`mcp_category`、`flow_id`、`pagination`
+
+#### 6.1.2 工作流 MCP 发布
+
+**请求**
+```
+POST /api/flow/v3/flow_mcp_public
+```
+
+**Body 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| flow_id | 是 | string | 工作流 ID |
+| tag_id | 是 | int | 标签 ID |
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": {
+    "template_check_id": 3913
+  }
+}
+```
 
 ---
 
@@ -411,7 +480,7 @@ POST /seaf/api/open/get_user_info
 | 查询部门详情 | ✅ 已获取 |
 | 上传媒体文件 | ✅ 已获取 |
 | 用户单点登录 | ✅ 已获取 |
-| MCP工具接口 | ⏳ 待补充 |
+| MCP工具接口 | ✅ 已获取 |
 | 评价列表查询接口 | ⏳ 待补充 |
 | 点踩数据查询接口 | ⏳ 待补充 |
 | 运营数据接口 | ⏳ 待补充 |
