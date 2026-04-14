@@ -305,7 +305,34 @@ Content-Type: multipart/form-data
 
 ### 5.1 用户单点登录
 
-> （文档待补充）
+QPaaS 侧跳转 Seaf 时携带 code + authorization，Seaf 返回用户信息完成 SSO。
+
+**请求**
+```
+POST /seaf/api/open/get_user_info
+```
+
+**Body**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| source | 是 | string | 来源，固定为 `gui` |
+| code | 是 | string | 随机数，取 URL query 参数 |
+| authorization | 是 | string | 认证参数，取 URL query 参数 |
+
+**返回**
+```json
+{
+  "errcode": "0",
+  "errmsg": "成功",
+  "datas": {
+    "userid": "17660905660342",
+    "name": "abcabc",
+    "account": "abcabc",
+    "avatarUrl": ""
+  }
+}
+```
 
 ---
 
@@ -383,7 +410,7 @@ Content-Type: multipart/form-data
 | 批量查询部门信息 | ✅ 已获取 |
 | 查询部门详情 | ✅ 已获取 |
 | 上传媒体文件 | ✅ 已获取 |
-| 用户单点登录 | ⏳ 待补充 |
+| 用户单点登录 | ✅ 已获取 |
 | MCP工具接口 | ⏳ 待补充 |
 | 评价列表查询接口 | ⏳ 待补充 |
 | 点踩数据查询接口 | ⏳ 待补充 |
