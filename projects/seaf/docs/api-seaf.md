@@ -941,7 +941,36 @@ GET /api/v2/agents/agent_category
 
 #### 10.2.4 获取审核开关
 
-> （文档待补充）
+构建侧拉取审核开关配置。
+
+**请求**
+```
+GET /seaf/api/go_internal/policy_config
+```
+
+**Header**：`Auth-Token: SR6B310fsir2pGnAQ8iG3oT4J2iR3xJd`（固定写死）
+
+**返回**
+```json
+{
+  "err_code": "0",
+  "err_msg": "ok",
+  "trans_id": "2ab8e2bb2267a5d2",
+  "datas": {
+    "agent_auto_audit": "1",
+    "mcp_auto_audit": "1",
+    "agent_revoke_allowed": "1"
+  }
+}
+```
+
+**字段说明**
+
+| 字段 | 说明 |
+|------|------|
+| agent_auto_audit | 智能体发布：仅本空间成员免审核（1=开，0=关） |
+| mcp_auto_audit | MCP发布：仅本空间成员免审核（1=开，0=关） |
+| agent_revoke_allowed | 已发布智能体允许撤销（1=开，0=关） |
 
 ---
 
