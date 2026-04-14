@@ -417,7 +417,46 @@ POST /api/flow/v3/flow_mcp_public
 
 ### 7.1 评价列表查询接口
 
-> （文档待补充）
+**请求**
+```
+POST /api/remark/list
+```
+
+**Body 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| agent_id | 否 | int | 智能体 ID |
+| user_name | 否 | str | 用户名称模糊查询 |
+| account | 否 | str | 账号 |
+| remark | 否 | str | 反馈内容模糊查询 |
+| remark_type | 否 | int | 反馈类型：1=建议，2=缺陷 |
+| start_date | 否 | int | 反馈开始时间（时间戳，默认30天前） |
+| end_date | 否 | int | 反馈结束时间（时间戳） |
+| page | 否 | int | 页码，默认 1 |
+| page_size | 否 | int | 每页数量，默认 20 |
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": [
+    {
+      "user_name": "岳克浩",
+      "user_account": "yuekehao",
+      "avatar": "",
+      "score": "5",
+      "remark_type": 1,
+      "remark": "测试数据19",
+      "images": "",
+      "create_time": 1754649919
+    }
+  ],
+  "pagination": { "total": 11, "page": 1, "page_size": 10 }
+}
+```
+
+**新增返回字段**：`user_name`、`user_account`、`avatar`、`score`、`remark_type`、`remark`、`images`、`create_time`、`pagination`
 
 ### 7.2 点踩数据查询接口
 
@@ -481,7 +520,7 @@ POST /api/flow/v3/flow_mcp_public
 | 上传媒体文件 | ✅ 已获取 |
 | 用户单点登录 | ✅ 已获取 |
 | MCP工具接口 | ✅ 已获取 |
-| 评价列表查询接口 | ⏳ 待补充 |
+| 评价列表查询接口 | ✅ 已获取 |
 | 点踩数据查询接口 | ⏳ 待补充 |
 | 运营数据接口 | ⏳ 待补充 |
 | GUI侧获取智能体分类列表 | ⏳ 待补充 |
