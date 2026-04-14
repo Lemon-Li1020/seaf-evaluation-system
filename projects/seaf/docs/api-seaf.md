@@ -562,7 +562,36 @@ GET /api/v2/agents/get_agent_dislike_remark_tags?agent_id=2222
 
 ### 8.1 运营数据接口
 
-> （文档待补充）
+#### 8.1.1 调用人数统计
+
+按日期/时间维度返回智能体调用人数。
+
+**请求**
+```
+GET /api/v2/agent/report/call_person_statistics
+```
+
+**Query 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| agent_id | 是 | int | 智能体 ID |
+| channel | 否 | str | 渠道 |
+| start_time | 是 | str | 开始时间，格式 `YYYY-MM-DD HH:mm:ss` |
+| end_time | 是 | str | 结束时间，格式 `YYYY-MM-DD HH:mm:ss` |
+
+> 特殊逻辑：时间范围超过一个月时按月返回，小于一天时按小时返回。
+
+**返回**
+```json
+{
+  "context": { "code": 0, "message": "OK" },
+  "data": {
+    "x_axis": ["2025-08-17", "2025-08-16", "2025-08-15"],
+    "series": [0, 0, 1]
+  }
+}
+```
 
 ---
 
@@ -616,7 +645,7 @@ GET /api/v2/agents/get_agent_dislike_remark_tags?agent_id=2222
 | MCP工具接口 | ✅ 已获取 |
 | 评价列表查询接口 | ✅ 已获取 |
 | 点踩数据查询接口 | ✅ 已获取 |
-| 运营数据接口 | ⏳ 待补充 |
+| 运营数据接口 | ✅ 已获取 |
 | GUI侧获取智能体分类列表 | ⏳ 待补充 |
 | 按空间获取知识库数据集 | ⏳ 待补充 |
 | 按数据集获取知识库列表 | ⏳ 待补充 |
