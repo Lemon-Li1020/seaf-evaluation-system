@@ -976,7 +976,25 @@ GET /seaf/api/go_internal/policy_config
 
 ### 10.3 查询全部租户信息
 
-> （文档待补充）
+**请求**
+```
+GET /seaf/api/open/corp/all
+```
+
+**返回**
+```json
+{
+  "err_code": "0",
+  "err_msg": "ok",
+  "trans_id": "2028ae73d0edbe8a",
+  "datas": {
+    "corp_list": [
+      { "cid": "1", "corp_name": "我的组织（勿删）" },
+      { "cid": "114478", "corp_name": "冒烟租户" }
+    ]
+  }
+}
+```
 
 ---
 
@@ -1004,7 +1022,7 @@ GET /seaf/api/go_internal/policy_config
 | 按数据集获取知识库列表 | ✅ 已获取 |
 | 查询管理后台AI配置 | ✅ 已获取 |
 | 管理端给构建侧交互接口 | ✅ 已获取（部分，4个子接口） |
-| 查询全部租户信息 | ⏳ 待补充 |
+| 查询全部租户信息 | ✅ 已获取 |
 
 ---
 
