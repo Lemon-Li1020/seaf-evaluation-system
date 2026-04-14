@@ -779,7 +779,40 @@ GET /seaf/api/open/gui/get_knowledge_file_list
 
 ### 10.1 查询管理后台 AI 配置
 
-> （文档待补充）
+查询智能体审核开关及撤销权限配置。
+
+**请求**
+```
+GET /seaf/api/open/gui/policy_config
+```
+
+**Query 参数**
+
+| 参数 | 必选 | 类型 | 说明 |
+|------|------|------|------|
+| cid | 否 | string | 组织 ID（预留） |
+
+**返回**
+```json
+{
+  "err_code": "0",
+  "err_msg": "ok",
+  "trans_id": "4670e0f169a370bd",
+  "datas": {
+    "agent_auto_audit": "1",
+    "mcp_auto_audit": "1",
+    "agent_revoke_allowed": "0"
+  }
+}
+```
+
+**字段说明**
+
+| 字段 | 说明 |
+|------|------|
+| agent_auto_audit | 智能体发布"仅本空间成员"免审核：1=免审核，0=需审核 |
+| mcp_auto_audit | MCP发布"仅本空间成员"免审核：1=免审核，0=需审核 |
+| agent_revoke_allowed | 已发布智能体允许撤销：1=允许，0=不允许 |
 
 ### 10.2 管理端给构建侧交互接口
 
@@ -813,7 +846,7 @@ GET /seaf/api/open/gui/get_knowledge_file_list
 | GUI侧获取智能体分类列表 | ✅ 已获取 |
 | 按空间获取知识库数据集 | ✅ 已获取 |
 | 按数据集获取知识库列表 | ✅ 已获取 |
-| 查询管理后台AI配置 | ⏳ 待补充 |
+| 查询管理后台AI配置 | ✅ 已获取 |
 | 管理端给构建侧交互接口 | ⏳ 待补充 |
 | 查询全部租户信息 | ⏳ 待补充 |
 
