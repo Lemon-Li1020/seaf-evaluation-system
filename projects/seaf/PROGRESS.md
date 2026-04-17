@@ -35,6 +35,14 @@
 
 | `docs/mcp-process.md` | MCP / Skill 发布/下架/审核流程、前后端 API 交互逻辑 |
 | `docs/agent-detail-tabs.md` | 智能体详情页 4 个 Tab 功能说明（日志模块完整，编排/发布/运营待补充） |
+| `docs/ai-forums.md` | AI 行业论坛订阅清单 + 抓取策略（已验证可访问渠道） |
+
+**Skills：**
+
+| 文件 | 内容 |
+|------|------|
+| `skills/seaf-testing-guide/` | Seaf 测试方法指南 skill（含竞品测试方案、行业测试方法论、每周 AI 热点抓取逻辑） |
+| `skills/seaf-competitive-analysis/` | Seaf 竞品分析 skill（含 Coze/Dify/Diffy/FastGPT 等平台信息） |
 
 ---
 
@@ -52,4 +60,4 @@
 
 ---
 
-*最后更新：2026-04-14*
+*最后更新：2026-04-17*
