@@ -1,0 +1,181 @@
+[
+  {
+    "id": "ev-reasoning-001",
+    "name": "知识库基础检索",
+    "agent_type": "reasoning",
+    "description": "测试知识库检索是否调用正确",
+    "query": "请问咱们公司的退换货政策是什么？",
+    "expected_answer": "退换货政策相关内容",
+    "expected_tools": ["knowledge_base"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["知识库", "退换货", "基础检索"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ev-reasoning-002",
+    "name": "MCP工具调用",
+    "agent_type": "reasoning",
+    "description": "测试是否正确调用天气MCP",
+    "query": "今天北京天气怎么样？",
+    "expected_answer": "天气相关信息（温度/天气状况）",
+    "expected_tools": ["mcp_weather"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["MCP", "天气", "工具调用"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ev-reasoning-003",
+    "name": "多轮对话上下文保持",
+    "agent_type": "reasoning",
+    "description": "测试多轮对话中上下文是否保持",
+    "query": "用户第1轮：请问这份合同的甲方是谁？\n用户第2轮：他们的统一社会信用代码是什么？\n用户第3轮：那这家公司注册地在哪？",
+    "expected_answer": "第3轮能正确回答注册地，且引用了第1轮提到的公司名称",
+    "expected_tools": ["document_parser"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "上下文保持", "weight": 0.15 }
+    ],
+    "tags": ["多轮对话", "上下文", "合同解析"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-reasoning-004",
+    "name": "意图识别-工具选错",
+    "agent_type": "reasoning",
+    "description": "测试意图识别能力，应调用知识库而非MCP",
+    "query": "我们公司的年假制度是怎么规定的？",
+    "expected_answer": "应调用知识库检索年假制度",
+    "expected_tools": ["knowledge_base"],
+    "wrong_tools": ["mcp_weather", "mcp_calendar"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["意图识别", "知识库", "易错题"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-reasoning-005",
+    "name": "Skill调用-PDF解析",
+    "agent_type": "reasoning",
+    "description": "测试PDF解析Skill调用",
+    "query": "帮我提取这个PDF文档中所有出现的人名",
+    "expected_answer": "返回文档中所有人名列表",
+    "expected_tools": ["skill_pdf_parser"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["Skill", "PDF解析", "文件处理"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-reasoning-006",
+    "name": "幻觉检测",
+    "agent_type": "reasoning",
+    "description": "测试回答是否超出知识库范围",
+    "query": "咱们公司有没有上市计划？",
+    "expected_answer": "如果知识库无此内容，应回答'暂无相关信息'而非编造",
+    "expected_tools": ["knowledge_base"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.3 },
+      { "dimension": "工具调用合理性", "weight": 0.2 },
+      { "dimension": "答案完整性", "weight": 0.15 },
+      { "dimension": "幻觉检测", "weight": 0.35 }
+    ],
+    "tags": ["幻觉检测", "知识库边界", "重要"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "ev-reasoning-007",
+    "name": "API调用-天气+穿衣建议",
+    "agent_type": "reasoning",
+    "description": "测试先查天气再给穿衣建议的串联能力",
+    "query": "今天上海多少度？适合穿什么出门？",
+    "expected_answer": "先调用天气API获取温度，再给出穿衣建议",
+    "expected_tools": ["mcp_weather"],
+    "expected_call_sequence": ["weather_check", "穿衣建议生成"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["API串联", "天气", "穿衣建议"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-reasoning-008",
+    "name": "Word文档解析",
+    "agent_type": "reasoning",
+    "description": "测试Word文档内容提取",
+    "query": "这份Word文档里的合同金额是多少？",
+    "expected_answer": "正确提取合同金额字段",
+    "expected_tools": ["skill_word_parser"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.5 },
+      { "dimension": "工具调用合理性", "weight": 0.2 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 }
+    ],
+    "tags": ["Word解析", "文件处理", "结构化提取"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ev-reasoning-009",
+    "name": "HTML内容提取",
+    "agent_type": "reasoning",
+    "description": "测试HTML页面内容提取",
+    "query": "帮我从这个网页提取标题和正文内容：https://example.com/news",
+    "expected_answer": "正确提取HTML中的标题和正文",
+    "expected_tools": ["skill_html_parser"],
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.5 },
+      { "dimension": "工具调用合理性", "weight": 0.2 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 }
+    ],
+    "tags": ["HTML解析", "网页提取", "文件处理"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-reasoning-010",
+    "name": "多工具联合调用",
+    "agent_type": "reasoning",
+    "description": "测试同时调用多个工具的能力",
+    "query": "今天北京和上海分别多少度？哪个城市更热？",
+    "expected_answer": "同时调用两个城市的天气API，对比后给出答案",
+    "expected_tools": ["mcp_weather"],
+    "expected_call_count": 2,
+    "evaluation_dimensions": [
+      { "dimension": "答案准确性", "weight": 0.4 },
+      { "dimension": "工具调用合理性", "weight": 0.25 },
+      { "dimension": "答案完整性", "weight": 0.2 },
+      { "dimension": "格式规范性", "weight": 0.1 },
+      { "dimension": "有害内容检测", "weight": 0.05 }
+    ],
+    "tags": ["多工具", "API串联", "对比分析"],
+    "difficulty": "hard"
+  }
+]

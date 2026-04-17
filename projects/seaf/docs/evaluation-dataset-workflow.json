@@ -1,0 +1,178 @@
+[
+  {
+    "id": "ev-workflow-001",
+    "name": "工作流节点顺序执行",
+    "agent_type": "workflow",
+    "description": "测试标准顺序执行的工作流",
+    "user_query": "帮我查一下某只股票的今日股价，并生成分析报告",
+    "expected_workflow": [
+      { "node": "stock_api", "expected_duration": "< 2s", "required": true },
+      { "node": "data_analysis", "expected_duration": "< 3s", "required": true },
+      { "node": "report_generation", "expected_duration": "< 5s", "required": true }
+    ],
+    "expected_total_duration": "< 12s",
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.3 },
+      { "dimension": "节点失败处理", "weight": 0.25 },
+      { "dimension": "响应时间合理性", "weight": 0.25 },
+      { "dimension": "结果质量", "weight": 0.2 }
+    ],
+    "performance_threshold": {
+      "p95_latency": "12s",
+      "max_node_time": "5s"
+    },
+    "tags": ["顺序执行", "API调用", "性能"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "ev-workflow-002",
+    "name": "节点失败-熔断降级",
+    "agent_type": "workflow",
+    "description": "测试中间节点失败时的熔断降级处理",
+    "user_query": "帮我查数据并生成报告",
+    "expected_workflow": [
+      { "node": "data_fetch", "expected_duration": "< 3s", "required": true },
+      { "node": "analysis", "expected_duration": "< 5s", "required": false, "fallback": "跳过分析直接生成摘要" },
+      { "node": "report_generation", "expected_duration": "< 5s", "required": true }
+    ],
+    "failure_injection": {
+      "node": "analysis",
+      "failure_type": "timeout",
+      "timeout": "3s"
+    },
+    "expected_behavior": "analysis节点超时应自动降级，流程继续，report_generation基于原始数据生成",
+    "wrong_patterns": [
+      { "pattern": "analysis失败后整个工作流终止", "severity": "critical" },
+      { "pattern": "没有降级策略，直接返回错误", "severity": "high" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.25 },
+      { "dimension": "节点失败处理", "weight": 0.35 },
+      { "dimension": "响应时间合理性", "weight": 0.2 },
+      { "dimension": "结果质量", "weight": 0.2 }
+    ],
+    "tags": ["故障处理", "熔断", "降级"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "ev-workflow-003",
+    "name": "并行节点效率",
+    "agent_type": "workflow",
+    "description": "测试可并行节点是否真正并行执行",
+    "user_query": "帮我同时查询这三只股票的今日股价：腾讯、阿里、字节",
+    "expected_workflow": [
+      { "node": "fetch_tencent", "parallel_group": "stock_fetch", "expected_duration": "< 2s" },
+      { "node": "fetch_alibaba", "parallel_group": "stock_fetch", "expected_duration": "< 2s" },
+      { "node": "fetch_bytedance", "parallel_group": "stock_fetch", "expected_duration": "< 2s" },
+      { "node": "aggregate", "expected_duration": "< 1s", "depends_on": "stock_fetch" }
+    ],
+    "expected_total_duration": "< 3.5s",
+    "wrong_patterns": [
+      { "pattern": "串行查询三只股票", "severity": "medium", "expected_time_ratio": "3x" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.25 },
+      { "dimension": "节点失败处理", "weight": 0.2 },
+      { "dimension": "响应时间合理性", "weight": 0.35 },
+      { "dimension": "结果质量", "weight": 0.2 }
+    ],
+    "performance_threshold": {
+      "p95_latency": "3.5s",
+      "parallel_efficiency": "> 70%"
+    },
+    "tags": ["并行执行", "性能优化", "效率"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-workflow-004",
+    "name": "工作流节点跳过",
+    "agent_type": "workflow",
+    "description": "测试条件分支是否正确跳过不必要节点",
+    "user_query": "如果用户是VIP，生成详细报告；否则生成简略报告",
+    "user_context": {
+      "is_vip": true
+    },
+    "expected_workflow_vip": [
+      { "node": "user_verify", "expected_duration": "< 1s" },
+      { "node": "data_fetch_detailed", "expected_duration": "< 5s" },
+      { "node": "report_vip", "expected_duration": "< 8s", "skip": false }
+    ],
+    "expected_workflow_normal": [
+      { "node": "user_verify", "expected_duration": "< 1s" },
+      { "node": "data_fetch_simple", "expected_duration": "< 2s" },
+      { "node": "report_simple", "expected_duration": "< 3s", "skip": false }
+    ],
+    "wrong_patterns": [
+      { "pattern": "VIP用户被当作普通用户处理", "severity": "high" },
+      { "pattern": "未VIP用户被生成详细报告（资源浪费）", "severity": "low" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.3 },
+      { "dimension": "节点失败处理", "weight": 0.2 },
+      { "dimension": "响应时间合理性", "weight": 0.2 },
+      { "dimension": "结果质量", "weight": 0.3 }
+    ],
+    "tags": ["条件分支", "节点跳过", "资源优化"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-workflow-005",
+    "name": "端到端性能监控",
+    "agent_type": "workflow",
+    "description": "测试完整工作流的端到端性能",
+    "user_query": "帮我完成一个完整的数据分析流程",
+    "expected_workflow": [
+      { "node": "data_source_connect", "expected_duration": "< 3s" },
+      { "node": "data_extract", "expected_duration": "< 5s" },
+      { "node": "data_transform", "expected_duration": "< 8s" },
+      { "node": "data_analysis", "expected_duration": "< 10s" },
+      { "node": "report_export", "expected_duration": "< 3s" }
+    ],
+    "expected_total_duration": "< 30s",
+    "performance_baseline": {
+      "total_p50": "18s",
+      "total_p95": "25s",
+      "total_p99": "29s",
+      "slow_node_threshold": "8s"
+    },
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.25 },
+      { "dimension": "节点失败处理", "weight": 0.2 },
+      { "dimension": "响应时间合理性", "weight": 0.35 },
+      { "dimension": "结果质量", "weight": 0.2 }
+    ],
+    "tags": ["性能基线", "SLA", "慢节点定位"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "ev-workflow-006",
+    "name": "工作流重试机制",
+    "agent_type": "workflow",
+    "description": "测试节点失败后的重试机制",
+    "user_query": "帮我查询并整理数据",
+    "expected_workflow": [
+      { "node": "data_fetch", "expected_duration": "< 3s", "max_retries": 3 },
+      { "node": "data_process", "expected_duration": "< 5s", "max_retries": 2 },
+      { "node": "report_generation", "expected_duration": "< 5s" }
+    ],
+    "failure_injection": {
+      "node": "data_fetch",
+      "failure_type": "network_error",
+      "failure_count": 1,
+      "expected_recovery": "自动重试1次后成功"
+    },
+    "expected_behavior": "data_fetch失败后自动重试，重试成功后流程继续",
+    "wrong_patterns": [
+      { "pattern": "失败后不重试直接终止", "severity": "critical" },
+      { "pattern": "重试超过次数限制后无熔断", "severity": "high" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "流程完整性", "weight": 0.25 },
+      { "dimension": "节点失败处理", "weight": 0.35 },
+      { "dimension": "响应时间合理性", "weight": 0.2 },
+      { "dimension": "结果质量", "weight": 0.2 }
+    ],
+    "tags": ["重试机制", "容错", "稳定性"],
+    "difficulty": "medium"
+  }
+]

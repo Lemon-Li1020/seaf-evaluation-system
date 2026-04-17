@@ -1,0 +1,120 @@
+[
+  {
+    "id": "ev-swarm-001",
+    "name": "子Agent编排-文档+分析+报告",
+    "agent_type": "swarm",
+    "description": "测试蜂群编排调用子Agent的顺序是否正确",
+    "user_query": "帮我分析这份竞品报告，并给出建议",
+    "expected_agent_chain": [
+      { "agent": "文档解析Agent", "expected_action": "提取报告内容" },
+      { "agent": "数据分析Agent", "expected_action": "结构化分析关键数据" },
+      { "agent": "报告生成Agent", "expected_action": "综合输出建议" }
+    ],
+    "wrong_patterns": [
+      { "pattern": "跳过数据分析直接生成报告", "severity": "high" },
+      { "pattern": "只调用了文档解析Agent", "severity": "high" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "编排合理性", "weight": 0.35 },
+      { "dimension": "结果聚合质量", "weight": 0.25 },
+      { "dimension": "死循环检测", "weight": 0.2 },
+      { "dimension": "端到端效果", "weight": 0.2 }
+    ],
+    "tags": ["编排", "文档分析", "建议生成"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-swarm-002",
+    "name": "子Agent冲突处理",
+    "agent_type": "swarm",
+    "description": "测试多Agent返回冲突结论时的处理",
+    "user_query": "帮我评估这两个方案哪个更好：方案A成本低但周期长，方案B成本高但周期短",
+    "expected_behavior": "蜂群层应识别冲突，给出取舍逻辑，而非简单罗列",
+    "expected_agent_chain": [
+      { "agent": "方案分析Agent-A", "expected_action": "分析方案A优缺点" },
+      { "agent": "方案分析Agent-B", "expected_action": "分析方案B优缺点" },
+      { "agent": "决策建议Agent", "expected_action": "综合对比给出建议" }
+    ],
+    "wrong_patterns": [
+      { "pattern": "直接输出两个冲突结论让用户自己选", "severity": "medium" },
+      { "pattern": "没有综合分析直接给出偏向性结论", "severity": "high" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "编排合理性", "weight": 0.3 },
+      { "dimension": "结果聚合质量", "weight": 0.3 },
+      { "dimension": "死循环检测", "weight": 0.15 },
+      { "dimension": "端到端效果", "weight": 0.25 }
+    ],
+    "tags": ["冲突处理", "决策建议", "编排"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "ev-swarm-003",
+    "name": "死循环检测",
+    "agent_type": "swarm",
+    "description": "测试同一Agent被反复调用是否被正确处理",
+    "user_query": "帮我写一个排序算法",
+    "expected_agent_chain": [
+      { "agent": "代码生成Agent", "expected_action": "生成排序算法代码", "max_call_count": 1 }
+    ],
+    "wrong_patterns": [
+      { "pattern": "代码生成Agent被调用超过3次", "severity": "critical" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "编排合理性", "weight": 0.3 },
+      { "dimension": "死循环检测", "weight": 0.4 },
+      { "dimension": "结果聚合质量", "weight": 0.15 },
+      { "dimension": "端到端效果", "weight": 0.15 }
+    ],
+    "tags": ["死循环", "异常处理", "安全"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-swarm-004",
+    "name": "子Agent调用遗漏",
+    "agent_type": "swarm",
+    "description": "测试是否遗漏了关键子Agent",
+    "user_query": "帮我查一下这个PDF里的数据，做个图表，并发给我",
+    "expected_agent_chain": [
+      { "agent": "PDF解析Agent", "expected_action": "提取数据" },
+      { "agent": "图表生成Agent", "expected_action": "生成图表" },
+      { "agent": "邮件发送Agent", "expected_action": "发送邮件" }
+    ],
+    "wrong_patterns": [
+      { "pattern": "遗漏了邮件发送Agent", "severity": "high" },
+      { "pattern": "只解析PDF就结束了", "severity": "high" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "编排合理性", "weight": 0.35 },
+      { "dimension": "结果聚合质量", "weight": 0.25 },
+      { "dimension": "死循环检测", "weight": 0.15 },
+      { "dimension": "端到端效果", "weight": 0.25 }
+    ],
+    "tags": ["编排完整性", "多步骤", "漏调用"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "ev-swarm-005",
+    "name": "并行编排效率",
+    "agent_type": "swarm",
+    "description": "测试可并行的Agent是否真正并行执行",
+    "user_query": "帮我查一下北京、上海、广州今天的天气情况",
+    "expected_agent_chain": [
+      { "agent": "天气查询Agent-北京", "expected_action": "查北京天气", "parallel": true },
+      { "agent": "天气查询Agent-上海", "expected_action": "查上海天气", "parallel": true },
+      { "agent": "天气查询Agent-广州", "expected_action": "查广州天气", "parallel": true }
+    ],
+    "expected_execution": "三个Agent应并行执行，总耗时约等于最慢一个的耗时",
+    "wrong_patterns": [
+      { "pattern": "三个城市串行查询", "severity": "medium", "expected_time_ratio": "3x" }
+    ],
+    "evaluation_dimensions": [
+      { "dimension": "编排合理性", "weight": 0.3 },
+      { "dimension": "结果聚合质量", "weight": 0.25 },
+      { "dimension": "死循环检测", "weight": 0.15 },
+      { "dimension": "端到端效果", "weight": 0.3 }
+    ],
+    "tags": ["并行编排", "性能", "效率"],
+    "difficulty": "medium"
+  }
+]
