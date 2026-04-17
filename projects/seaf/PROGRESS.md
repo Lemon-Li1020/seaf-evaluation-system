@@ -33,7 +33,8 @@
 | `docs/deployment-license.md` | agents-license 部署流程 |
 | `docs/qpaas-scripts.md` | QPaaS GUI 侧部署脚本（6 个 feat） |
 
-| `docs/mcp-process.md` | MCP 发布/下架/审核流程、前后端 API 交互逻辑 |
+| `docs/mcp-process.md` | MCP / Skill 发布/下架/审核流程、前后端 API 交互逻辑 |
+| `docs/agent-detail-tabs.md` | 智能体详情页 4 个 Tab 功能说明（日志模块完整，编排/发布/运营待补充） |
 
 ---
 
