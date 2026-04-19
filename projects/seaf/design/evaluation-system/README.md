@@ -13,8 +13,10 @@
 | 02 | [数据库设计](./02-database.md) | 表结构设计、ER 图、索引 | ✅ |
 | 03 | [API 接口设计](./03-api.md) | RESTful API 接口定义 | ✅ |
 | 04 | [评测器设计](./04-evaluator.md) | 推理/工作流评测器、评测执行器 | ✅ |
-| 05 | [LLM 评委服务设计](./05-llm-judge.md) | LLM 评委服务、Prompt 模板 | ✅ |
+| 05 | [LLM 评委服务设计](./05-llm-judge.md) | LLM 评委服务、Prompt 模板、置信度机制 | ✅ |
 | 06 | [异步任务设计](./06-celery-tasks.md) | Celery 配置、任务定义、部署 | ✅ |
+| 07 | [编排评测器设计](./07-orchestration-evaluator.md) | 编排智能体评测器、死循环检测、调用链采集 | ✅ (新增) |
+| 08 | [Seaf 接口契约](./08-seaf-interface-contract.md) | Seaf 外部接口请求/响应格式、与评测系统集成点 | ✅ (新增) |
 
 ---
 
@@ -38,7 +40,7 @@
 
 1. **先读**：01-architecture.md（了解系统全貌）
 2. **再读**：02-database.md（理解数据结构）
-3. **按需**：03-api.md（实现 API）/ 04-evaluator.md（实现评测器）/ 05-llm-judge.md（实现评委）
+3. **按需**：03-api.md（实现API）/ 04-evaluator.md（实现评测器）/ 05-llm-judge.md（实现评委）/ 07-orchestration-evaluator.md（实现编排评测器）/ 08-seaf-interface-contract.md（确认外部依赖）
 
 ### 评审者
 
@@ -46,8 +48,10 @@
 2. 02-database.md → 数据模型是否完整
 3. 03-api.md → 接口设计是否符合规范
 4. 04-evaluator.md → 评测器逻辑是否正确
-5. 05-llm-judge.md → LLM 评委设计是否可行
+5. 05-llm-judge.md → LLM 评委设计是否可行（含置信度机制）
 6. 06-celery-tasks.md → 异步任务设计是否可靠
+7. 07-orchestration-evaluator.md → 编排评测器逻辑是否正确
+8. 08-seaf-interface-contract.md → Seaf 接口依赖是否满足
 
 ---
 
@@ -63,13 +67,26 @@
 
 ---
 
-## 待补充文档
+## 关键设计决策
+
+| 决策点 | 选择 | 原因 |
+|--------|------|------|
+| 评测器抽象设计 | 基类 + 子类 | 便于扩展（推理/工作流/编排三类评测器） |
+| 工作流结果获取 | 轮询 | 简单可靠，适合 MVP |
+| LLM 评委 | 策略模式 | 支持多模型切换和 Prompt 模板化 |
+| 异步任务 | Celery + Redis | 支持分布式、监控完善 |
+| 性能指标判定 | 系统自动 | 不需要 LLM，减少成本 |
+| 编排调用链采集 | Seaf 返回调用链 | 依赖 Seaf 编排智能体支持 `include_call_chain=true` |
+
+## 已补充文档
 
 | 文档 | 说明 | 优先级 |
 |------|------|--------|
 | 测试方案 | 单元测试、集成测试策略 | P1 |
 | 部署文档 | 环境配置、Kubernetes 部署 | P1 |
 | 运维手册 | 监控、告警、故障处理 | P2 |
+| 编排评测器设计 | 编排智能体评测器、死循环检测 | ✅ 已完成 |
+| Seaf 接口契约 | Seaf 外部接口定义 | ✅ 已完成 |
 
 ---
 

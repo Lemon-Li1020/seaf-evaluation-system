@@ -415,3 +415,46 @@ agent-go、agent-web、agent-api、GUI QPaaS、小引擎、蜂群前后端、sea
 ---
 
 *最后更新：2026-04-14（补充1030、1130版本）*
+
+## V3.0.7.0510-dev (2026-04-20)
+
+### 新增
+
+- **评测系统设计文档**（完整版）
+  - `docs/agent-evaluation-system-requirements.md` — 完整需求规格说明书（推理+编排+工作流三大类型）
+  - `docs/agent-evaluation-system-requirements-mvp.md` — MVP版需求规格说明书
+  - `docs/requirement-evaluation-v2.md` — 评测系统需求V2
+  - `design/evaluation-system/01-architecture.md` — 总体技术方案
+  - `design/evaluation-system/02-database.md` — 数据库设计（含编排类型表结构）
+  - `design/evaluation-system/03-api.md` — RESTful API 接口设计（含编排类型API）
+  - `design/evaluation-system/04-evaluator.md` — 评测器设计（推理+工作流）
+  - `design/evaluation-system/05-llm-judge.md` — LLM 评委服务设计（含置信度机制）
+  - `design/evaluation-system/06-celery-tasks.md` — 异步任务设计
+  - `design/evaluation-system/07-orchestration-evaluator.md` — **编排评测器设计（新增）**
+  - `design/evaluation-system/08-seaf-interface-contract.md` — **Seaf 外部接口契约（新增）**
+  - `docs/llm-judge-prompts.md` — LLM 评委 Prompt 合集
+
+- **评测集数据**
+  - `docs/evaluation-dataset-reasoning.json` — 推理评测集（10题）
+  - `docs/evaluation-dataset-swarm.json` — 蜂群评测集（5题）
+  - `docs/evaluation-dataset-workflow.json` — 工作流评测集（6题）
+
+- **评测框架**
+  - `docs/agent-evaluation-framework.md` — 评测体系总览与路线图
+
+### 完善
+
+- LLM 评委 Prompt 补充置信度（confidence）和 needs_human_review 字段
+- 响应解析逻辑补充置信度解析
+- 需求文档补充置信度完整处理链路
+- 数据库 test_case 表字段从 TEXT 升级为 JSONB（expected_tools / expected_nodes / expected_sub_agents 等）
+- agent_type CHECK 约束扩展支持 orchestration 类型
+- evaluation_config 表初始化数据扩展编排智能体配置
+- API 文档 agent_type 参数说明扩展编排类型
+- API 文档补充编排类型评测项请求示例
+- README.md 索引文档更新（新增 07、08）
+- 评测结果上报结构补充 needs_review_count 和 confidence_distribution
+
+### 已知缺口
+
+- Seaf 编排智能体需支持 `include_call_chain=true` 参数（接口契约文档已定义）

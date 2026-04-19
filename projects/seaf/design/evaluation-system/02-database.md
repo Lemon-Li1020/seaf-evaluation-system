@@ -90,16 +90,18 @@ CREATE INDEX idx_team_name ON team(name);
 
 ---
 
-### 2.2 agent - 智能体表（可选复用现有表）
+### 2.2 agent - 智能体表
 
-> ⚠️ 本表为评测系统所需的最小字段，完整智能体信息应复用 Seaf 平台现有 agent 表。
+> ⚠️ **数据归属决策**：推荐**复用 Seaf 平台现有 agent 表**，评测系统只存储 `agent_id` 和类型标签，不做数据同步。
+> 
+> 若 Seaf 平台暂不支持按 agent_id 查询，则在评测系统创建 agent 记录，通过后台同步或手动导入方式初始化。
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
-| id | BIGSERIAL | PRIMARY KEY | 智能体 ID |
+| id | BIGSERIAL | PRIMARY KEY | 智能体 ID（复用 Seaf agent_id） |
 | team_id | BIGINT | FOREIGN KEY (team.id) | 团队 ID |
 | name | VARCHAR(200) | NOT NULL | 智能体名称 |
-| agent_type | VARCHAR(20) | NOT NULL | 类型：reasoning / workflow |
+| agent_type | VARCHAR(20) | NOT NULL | 类型：reasoning / workflow / **orchestration** |
 | description | TEXT | | 智能体描述 |
 | config | JSONB | | 智能体配置 |
 | created_at | TIMESTAMP | DEFAULT NOW() | 创建时间 |
@@ -110,7 +112,7 @@ CREATE TABLE agent (
     id BIGSERIAL PRIMARY KEY,
     team_id BIGINT REFERENCES team(id),
     name VARCHAR(200) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     description TEXT,
     config JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT NOW(),
@@ -145,7 +147,7 @@ CREATE TABLE test_set (
     team_id BIGINT REFERENCES team(id) NOT NULL,
     agent_id BIGINT REFERENCES agent(id),
     name VARCHAR(200) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     description TEXT,
     total_cases INTEGER DEFAULT 0,
     version VARCHAR(20) DEFAULT 'v1.0',
@@ -163,18 +165,24 @@ CREATE INDEX idx_test_set_type ON test_set(agent_type);
 
 ### 2.4 test_case - 评测数据项表
 
+> ⚠️ **字段类型说明**：以下 JSON 数组字段统一使用 `JSONB` 类型，不再使用 `TEXT` 存储 JSON 字符串。
+
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | id | BIGSERIAL | PRIMARY KEY | 评测项 ID |
 | test_set_id | BIGINT | FOREIGN KEY (test_set.id) | 所属评测集 ID |
 | name | VARCHAR(200) | NOT NULL | 评测项名称 |
 | query | TEXT | NOT NULL | 用户问题/触发条件 |
-| expected_tools | TEXT | | 期望调用的工具列表（JSON 数组字符串） |
-| expected_answer_keywords | TEXT | | 期望答案关键词（JSON 数组字符串） |
-| expected_nodes | TEXT | | 期望执行的工作流节点（JSON 数组，仅工作流类型） |
-| max_node_latency_ms | INTEGER | | 单节点最大耗时（毫秒） |
+| expected_tools | JSONB | | 期望调用的工具列表（JSON数组，仅推理类型） |
+| expected_answer_keywords | JSONB | | 期望答案关键词（JSON数组） |
+| expected_nodes | JSONB | | 期望执行的工作流节点（JSON数组，仅工作流类型） |
+| expected_sub_agents | JSONB | | 期望调用的子Agent名称列表（JSON数组，仅编排类型） |
+| expected_order | JSONB | | 期望的调用顺序（JSON数组，仅编排类型） |
+| max_sub_agent_calls | INTEGER | | 单子Agent最大调用次数（仅编排类型） |
+| conflict_scenario | BOOLEAN | DEFAULT FALSE | 是否为冲突场景测试（仅编排类型） |
+| max_node_latency_ms | INTEGER | | 单节点最大耗时（毫秒，仅工作流类型） |
 | max_total_latency_ms | INTEGER | | 端到端最大耗时（毫秒） |
-| tags | TEXT | | 标签列表（JSON 数组字符串） |
+| tags | JSONB | DEFAULT '[]' | 标签列表 |
 | difficulty | VARCHAR(10) | DEFAULT 'medium' | 难度：easy / medium / hard |
 | sort_order | INTEGER | DEFAULT 0 | 排序顺序 |
 | created_at | TIMESTAMP | DEFAULT NOW() | 创建时间 |
@@ -186,12 +194,16 @@ CREATE TABLE test_case (
     test_set_id BIGINT REFERENCES test_set(id) ON DELETE CASCADE,
     name VARCHAR(200) NOT NULL,
     query TEXT NOT NULL,
-    expected_tools TEXT,
-    expected_answer_keywords TEXT,
-    expected_nodes TEXT,
+    expected_tools JSONB,
+    expected_answer_keywords JSONB,
+    expected_nodes JSONB,
+    expected_sub_agents JSONB,
+    expected_order JSONB,
+    max_sub_agent_calls INTEGER,
+    conflict_scenario BOOLEAN DEFAULT FALSE,
     max_node_latency_ms INTEGER,
     max_total_latency_ms INTEGER,
-    tags TEXT DEFAULT '[]',
+    tags JSONB DEFAULT '[]',
     difficulty VARCHAR(10) DEFAULT 'medium' CHECK (difficulty IN ('easy', 'medium', 'hard')),
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW(),
@@ -234,7 +246,7 @@ CREATE TABLE evaluation_task (
     team_id BIGINT REFERENCES team(id) NOT NULL,
     test_set_id BIGINT REFERENCES test_set(id) NOT NULL,
     agent_id BIGINT REFERENCES agent(id) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     agent_version VARCHAR(50),
     trigger VARCHAR(20) DEFAULT 'manual' CHECK (trigger IN ('manual', 'scheduled', 'pre_release', 'api')),
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'running', 'completed', 'failed')),
@@ -287,11 +299,14 @@ CREATE TABLE test_case_result (
     agent_response TEXT,
     tool_call_log JSONB DEFAULT '[]',
     node_execution_log JSONB DEFAULT '[]',
+    sub_agent_call_log JSONB DEFAULT '[]',
     scores JSONB DEFAULT '{}',
     weighted_score INTEGER,
     passed BOOLEAN,
     latency_ms BIGINT,
     llm_response JSONB,
+    confidence VARCHAR(10) DEFAULT 'high',
+    needs_human_review BOOLEAN DEFAULT FALSE,
     error_message TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -380,7 +395,7 @@ CREATE INDEX idx_notification_team_id ON notification_config(team_id);
 ```sql
 CREATE TABLE evaluation_config (
     id BIGSERIAL PRIMARY KEY,
-    agent_type VARCHAR(20) NOT NULL UNIQUE CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL UNIQUE CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     dimensions JSONB NOT NULL,
     grade_rules JSONB NOT NULL,
     regression_threshold DECIMAL(5,2) DEFAULT 10.00,
@@ -396,6 +411,11 @@ INSERT INTO evaluation_config (agent_type, dimensions, grade_rules, regression_t
  10.00
 ),
 ('workflow',
+('orchestration',
+ '{orchestration_reasonableness: {weight: 0.30, description: 编排合理性}, result_aggregation: {weight: 0.25, description: 结果聚合质量}, dead_loop_detection: {weight: 0.15, description: 死循环检测}, end_to_end_effect: {weight: 0.20, description: 端到端效果}, sub_agent_tool_usage: {weight: 0.10, description: 子Agent工具调用}}',
+ '{A: [90, 100], B: [80, 89], C: [70, 79], D: [60, 69], F: [0, 59], dimension_constraint: {threshold: 60, max_grade: C}}',
+ 10.00
+)
  '{"flow_completeness": {"weight": 0.3, "description": "流程完整性"}, "node_performance": {"weight": 0.3, "description": "节点性能"}, "end_to_end_latency": {"weight": 0.2, "description": "端到端耗时"}, "result_quality": {"weight": 0.2, "description": "结果质量"}}',
  '{"A": [90, 100], "B": [80, 89], "C": [70, 79], "D": [60, 69], "F": [0, 59], "dimension_constraint": {"threshold": 60, "max_grade": "C"}}',
  10.00
@@ -561,7 +581,7 @@ CREATE TABLE IF NOT EXISTS agent (
     id BIGSERIAL PRIMARY KEY,
     team_id BIGINT REFERENCES team(id),
     name VARCHAR(200) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     description TEXT,
     config JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT NOW(),
@@ -574,7 +594,7 @@ CREATE TABLE IF NOT EXISTS test_set (
     team_id BIGINT REFERENCES team(id) NOT NULL,
     agent_id BIGINT REFERENCES agent(id),
     name VARCHAR(200) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     description TEXT,
     total_cases INTEGER DEFAULT 0,
     version VARCHAR(20) DEFAULT 'v1.0',
@@ -608,7 +628,7 @@ CREATE TABLE IF NOT EXISTS evaluation_task (
     team_id BIGINT REFERENCES team(id) NOT NULL,
     test_set_id BIGINT REFERENCES test_set(id) NOT NULL,
     agent_id BIGINT REFERENCES agent(id) NOT NULL,
-    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     agent_version VARCHAR(50),
     trigger VARCHAR(20) DEFAULT 'manual' CHECK (trigger IN ('manual', 'scheduled', 'pre_release', 'api')),
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'running', 'completed', 'failed')),
@@ -632,11 +652,14 @@ CREATE TABLE IF NOT EXISTS test_case_result (
     agent_response TEXT,
     tool_call_log JSONB DEFAULT '[]',
     node_execution_log JSONB DEFAULT '[]',
+    sub_agent_call_log JSONB DEFAULT '[]',
     scores JSONB DEFAULT '{}',
     weighted_score INTEGER,
     passed BOOLEAN,
     latency_ms BIGINT,
     llm_response JSONB,
+    confidence VARCHAR(10) DEFAULT 'high',
+    needs_human_review BOOLEAN DEFAULT FALSE,
     error_message TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
@@ -668,7 +691,7 @@ CREATE TABLE IF NOT EXISTS notification_config (
 -- 9. 评测配置表
 CREATE TABLE IF NOT EXISTS evaluation_config (
     id BIGSERIAL PRIMARY KEY,
-    agent_type VARCHAR(20) NOT NULL UNIQUE CHECK (agent_type IN ('reasoning', 'workflow')),
+    agent_type VARCHAR(20) NOT NULL UNIQUE CHECK (agent_type IN ('reasoning', 'workflow', 'orchestration')),
     dimensions JSONB NOT NULL,
     grade_rules JSONB NOT NULL,
     regression_threshold DECIMAL(5,2) DEFAULT 10.00,
@@ -696,6 +719,11 @@ INSERT INTO evaluation_config (agent_type, dimensions, grade_rules, regression_t
  10.00
 ),
 ('workflow',
+('orchestration',
+ '{orchestration_reasonableness: {weight: 0.30, description: 编排合理性}, result_aggregation: {weight: 0.25, description: 结果聚合质量}, dead_loop_detection: {weight: 0.15, description: 死循环检测}, end_to_end_effect: {weight: 0.20, description: 端到端效果}, sub_agent_tool_usage: {weight: 0.10, description: 子Agent工具调用}}',
+ '{A: [90, 100], B: [80, 89], C: [70, 79], D: [60, 69], F: [0, 59], dimension_constraint: {threshold: 60, max_grade: C}}',
+ 10.00
+)
  '{"flow_completeness": {"weight": 0.3, "description": "流程完整性"}, "node_performance": {"weight": 0.3, "description": "节点性能"}, "end_to_end_latency": {"weight": 0.2, "description": "端到端耗时"}, "result_quality": {"weight": 0.2, "description": "结果质量"}}',
  '{"A": [90, 100], "B": [80, 89], "C": [70, 79], "D": [60, 69], "F": [0, 59], "dimension_constraint": {"threshold": 60, "max_grade": "C"}}',
  10.00

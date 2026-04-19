@@ -142,7 +142,7 @@ Agent 返回响应 + 工具调用日志 + 耗时
     ↓
 置信度高(>90%) → 直接采纳
 置信度中(70-90%) → 采纳，标记关注
-置信度低(<70%) → 推送人工复核队列
+置信度低(<70%) → needs_human_review=true，推送人工复核队列
     ↓
 汇总生成评测报告
 ```
@@ -201,7 +201,10 @@ Agent 返回响应 + 工具调用日志 + 耗时
     "completeness": { "score": 85, "weight": 0.2 },
     "format": { "score": 100, "weight": 0.1 },
     "safety": { "score": 100, "weight": 0.05 },
-    "orchestration": { "score": 87, "weight": 0.2 }
+    "orchestration_reasonableness": { "score": 87, "weight": 0.20 },
+    "result_aggregation": { "score": 85, "weight": 0.15 },
+    "dead_loop_detection": { "score": 100, "weight": 0.10 },
+    "sub_agent_tool_usage": { "score": 90, "weight": 0.05 }
   },
   "needs_review_cases": [
     {

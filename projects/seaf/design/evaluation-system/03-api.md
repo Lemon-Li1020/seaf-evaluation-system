@@ -75,7 +75,7 @@ POST /api/v1/evaluation/test-sets
 | team_id | int | 是 | 团队 ID |
 | agent_id | int | 是 | 关联智能体 ID |
 | name | string | 是 | 评测集名称 |
-| agent_type | string | 是 | 智能体类型：reasoning / workflow |
+| agent_type | string | 是 | 智能体类型：reasoning / workflow / orchestration |
 | description | string | 否 | 评测集描述 |
 
 **响应**
@@ -280,6 +280,25 @@ POST /api/v1/evaluation/test-sets/{test_set_id}/cases/batch
     }
   ]
 }
+
+**请求 Body（编排智能体）**
+
+```json
+{
+  "cases": [
+    {
+      "name": "竞品分析场景",
+      "query": "帮我分析这份竞品报告并给出建议",
+      "expected_sub_agents": ["文档解析Agent", "数据分析Agent", "报告生成Agent"],
+      "expected_order": ["文档解析Agent", "数据分析Agent", "报告生成Agent"],
+      "max_sub_agent_calls": 3,
+      "conflict_scenario": false,
+      "expected_answer_keywords": ["优势", "劣势", "机会", "威胁"],
+      "tags": ["编排", "竞品分析"],
+      "difficulty": "hard"
+    }
+  ]
+}
 ```
 
 **响应**
@@ -421,7 +440,7 @@ POST /api/v1/evaluation/tasks
 |------|------|------|------|
 | test_set_id | int | 是 | 评测集 ID |
 | agent_id | int | 是 | 智能体 ID |
-| agent_type | string | 是 | 智能体类型：reasoning / workflow |
+| agent_type | string | 是 | 智能体类型：reasoning / workflow / orchestration |
 | agent_version | string | 否 | 智能体版本 |
 | trigger | string | 否 | 触发方式：manual / scheduled / pre_release，默认 manual |
 
@@ -875,7 +894,7 @@ GET /api/v1/evaluation/config/{agent_type}
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
-| agent_type | string | 智能体类型：reasoning / workflow |
+| agent_type | string | 智能体类型：reasoning / workflow / orchestration |
 
 **响应**
 
